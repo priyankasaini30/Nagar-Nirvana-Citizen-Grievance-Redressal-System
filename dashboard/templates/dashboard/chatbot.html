@@ -1,0 +1,114 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dashboard_title %}Citizen Chatbot | Nagar Nirvana{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-hero mb-4 p-5 rounded-4 shadow-sm text-center bg-light">
+    <h2>Citizen Help Chatbot</h2>
+    <p>Ask about submitting complaints, tracking status, maps, or feedback.</p>
+</div>
+
+<div class="row g-4 justify-content-center text-center">
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body text-center">
+                <h5 class="mb-3">Quick Links</h5>
+                <div class="d-grid gap-2 text-center">
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'complaints:submit_complaint' %}">
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Submit Complaint
+                    </a>
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'complaints:track_status' %}">
+                        <i class="fa-solid fa-magnifying-glass me-2"></i>Track Status
+                    </a>
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'complaints:complaint_map' %}">
+                        <i class="fa-solid fa-map-location-dot me-2"></i>Map View
+                    </a>
+                    <a class="btn btn-outline-primary btn-sm" href="{% url 'complaints:feedback_center' %}">
+                        <i class="fa-solid fa-comment-dots me-2"></i>Feedback Center
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body text-center">
+                <h5 class="mb-3">FAQ Shortcuts</h5>
+                <div class="d-grid gap-2 text-center">
+                    {% for item in faqs %}
+                    <button type="button" class="btn btn-outline-primary btn-sm faq-btn"
+                            data-message="{{ item.keywords|first }}">
+                        {{ item.keywords|first|capfirst }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body text-center">
+                <h5 class="mb-3">Recent Complaints</h5>
+                {% if recent_complaints %}
+                <ul class="list-group list-group-flush text-center">
+                    {% for complaint in recent_complaints %}
+                    <li class="list-group-item d-flex flex-column align-items-center gap-2">
+                        <div>
+                            <div class="fw-semibold">{{ complaint.title }}</div>
+                            <small class="text-muted">{{ complaint.get_status_display }}</small>
+                        </div>
+                        <a class="btn btn-outline-primary btn-sm"
+                           href="{% url 'complaints:complaint_detail' complaint.id %}">
+                            View
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted mb-0">No complaints yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 rounded-4 h-100">
+            <div class="card-body d-flex flex-column text-center">
+                <form method="post" class="d-flex gap-2 flex-wrap mb-3 justify-content-center">
+                    {% csrf_token %}
+                    <input type="text" name="message" class="form-control" id="chatbot-input"
+                           placeholder="Type your question..." required>
+                    <button type="submit" class="btn btn-primary">Ask</button>
+                </form>
+
+                <div class="flex-grow-1">
+                    {% if user_message %}
+                    <div class="mb-3 p-3 rounded-3 bg-light border">
+                        <div class="fw-semibold">You</div>
+                        <div class="text-muted">{{ user_message }}</div>
+                    </div>
+                    <div class="p-3 rounded-3 bg-white border shadow-sm">
+                        <div class="fw-semibold">Chatbot</div>
+                        <div>{{ reply }}</div>
+                    </div>
+                    {% else %}
+                    <div class="p-4 rounded-3 bg-light border text-center text-muted">
+                        Ask a question to get started.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.getElementById('chatbot-input');
+    document.querySelectorAll('.faq-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            input.value = this.dataset.message;
+            input.focus();
+        });
+    });
+});
+</script>
+{% endblock %}

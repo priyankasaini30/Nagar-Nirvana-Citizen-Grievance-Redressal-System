@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}Complaint Map{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="text-primary mb-3">Complaint Map</h2>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div id="map" style="height: 500px; border-radius: 10px;"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const map = L.map('map');
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '(c) OpenStreetMap contributors'
+    }).addTo(map);
+
+    const complaints = {{ complaints|safe }};
+
+    complaints.forEach(c => {
+        if (c.latitude && c.longitude) {
+            L.marker([c.latitude, c.longitude])
+            .addTo(map)
+            .bindPopup(`
+                <strong>${c.title}</strong><br>
+                ${c.category}<br>
+                Status: ${c.status}<br>
+                <a href="/complaints/${c.id}/">View</a>
+            `);
+        }
+    });
+
+    const fallback = [28.6139, 77.2090];
+    let hasUserLocation = false;
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                hasUserLocation = true;
+                const pos = [position.coords.latitude, position.coords.longitude];
+                map.setView(pos, 14);
+                L.marker(pos).addTo(map).bindPopup('You are here').openPopup();
+            },
+            function () {
+                if (!hasUserLocation) {
+                    map.setView(fallback, 10);
+                }
+            },
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+        );
+    } else {
+        map.setView(fallback, 10);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Authority Registration - Citizen Grievance Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center py-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <i class="fas fa-user-shield fa-3x mb-3"></i>
+                    <h3 class="mb-0 fw-bold">Authority Registration</h3>
+                    <p class="mb-0 opacity-75">Submit a request for admin approval</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3">
+                                <i class="fas fa-info-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-primary"></i>First Name
+                                </label>
+                                <input type="text" class="form-control" id="id_first_name" name="first_name"
+                                       placeholder="Enter your first name" value="{{ form.first_name.value|default:'' }}">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-primary"></i>Last Name
+                                </label>
+                                <input type="text" class="form-control" id="id_last_name" name="last_name"
+                                       placeholder="Enter your last name" value="{{ form.last_name.value|default:'' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-semibold">
+                                <i class="fas fa-at me-2 text-primary"></i>Username
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="id_username" name="username"
+                                       placeholder="Choose a unique username" value="{{ form.username.value|default:'' }}" required>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ form.username.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-2 text-primary"></i>Email Address
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="id_email" name="email"
+                                       placeholder="Enter your email address" value="{{ form.email.value|default:'' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_password1" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="id_password1" name="password1"
+                                           placeholder="Create a strong password" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_password2" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-primary"></i>Confirm Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control" id="id_password2" name="password2"
+                                           placeholder="Confirm your password" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <p class="mb-0">Already have an account?
+                        <a href="{% url 'accounts:login' %}" class="text-decoration-none fw-semibold text-primary">
+                            <i class="fas fa-sign-in-alt me-1"></i>Sign in here
+                        </a>
+                    </p>
+                    <p class="mb-0 mt-2">
+                        Looking for a citizen account?
+                        <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-semibold text-success">
+                            <i class="fas fa-user-plus me-1"></i>Register as citizen
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Authority access requires admin approval before login.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

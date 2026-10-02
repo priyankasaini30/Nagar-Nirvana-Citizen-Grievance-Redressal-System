@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Feedback Received{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-2 mb-4">
+        <div>
+            <h2 class="h5 fw-semibold mb-1">Citizen Feedback</h2>
+            <p class="text-muted mb-0">Review feedback submitted on resolved complaints.</p>
+        </div>
+        <a class="btn btn-outline-primary" href="{% url 'complaints:complaint_list' %}">
+            View Complaints
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Complaint</th>
+                        <th>Citizen</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                        <th>Submitted</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>#NN-{{ feedback.complaint.id }} {{ feedback.complaint.title }}</td>
+                        <td>{{ feedback.complaint.citizen.username }}</td>
+                        <td>
+                            <span class="badge bg-success">{{ feedback.rating }}/5</span>
+                        </td>
+                        <td class="text-muted">{{ feedback.comment|default:"-" }}</td>
+                        <td>{{ feedback.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" href="{% url 'complaints:complaint_detail' feedback.complaint.id %}">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No feedback received yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

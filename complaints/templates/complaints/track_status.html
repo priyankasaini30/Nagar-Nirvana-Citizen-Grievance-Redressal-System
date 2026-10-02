@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Track Status{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h2 class="h5 fw-semibold mb-0">Track Complaint Status</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="row g-3 align-items-end">
+                        {% csrf_token %}
+                        <div class="col-md-8">
+                            <label for="tracking_id" class="form-label">Tracking ID</label>
+                            <input type="text" class="form-control" id="tracking_id" name="tracking_id" placeholder="Enter tracking ID (e.g. CMP-AB12CD)" required>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">Check Status</button>
+                        </div>
+                    </form>
+
+                    {% if not_found %}
+                        <div class="alert alert-warning mt-4 mb-0">No complaint found for that tracking ID.</div>
+                    {% endif %}
+
+                    {% if complaint %}
+                        <div class="border rounded-3 p-3 mt-4">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-semibold mb-1">{{ complaint.title }}</h6>
+                                    <p class="text-muted mb-2">{{ complaint.description|truncatechars:120 }}</p>
+                                    <div class="text-muted small">
+                                        Tracking ID: {{ complaint.tracking_id }} | Category: {{ complaint.category.name }} | Submitted: {{ complaint.created_at|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                                <span class="badge bg-primary">{{ complaint.get_status_display }}</span>
+                            </div>
+                            <div class="mt-3">
+                                <a class="btn btn-sm btn-outline-primary" href="{% url 'complaints:complaint_detail' complaint.pk %}">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

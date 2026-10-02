@@ -1,0 +1,8 @@
+Hello {{ user.get_full_name|default:user.username }},
+
+Your authority registration has been approved.
+
+You can now log in to the Nagar Nirvana portal using your username and password.
+
+Thank you,
+Nagar Nirvana Team

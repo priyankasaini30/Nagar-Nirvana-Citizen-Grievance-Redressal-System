@@ -1,0 +1,8 @@
+Hello {{ user.get_full_name|default:user.username }},
+
+Your authority registration request has been rejected.
+
+If you believe this is an error, please contact the Nagar Nirvana support team.
+
+Thank you,
+Nagar Nirvana Team

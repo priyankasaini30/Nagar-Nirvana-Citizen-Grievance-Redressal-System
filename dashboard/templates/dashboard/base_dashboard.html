@@ -1,0 +1,123 @@
+﻿{% extends 'base.html' %}
+
+{% block title %}{% block dashboard_title %}Dashboard{% endblock %}{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+    }
+    .navbar {
+        margin-top: 0;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .navbar .navbar-brand {
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+    .messages-container {
+        margin-top: 0 !important;
+    }
+    .dashboard-shell {
+        background: linear-gradient(180deg, #f8fafc 0%, #ffffff 55%);
+        margin-top: 0;
+        padding-top: 0 !important;
+    }
+    .dashboard-shell > .container,
+    .dashboard-shell .dashboard-layout {
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+    }
+    .dashboard-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    @media (min-width: 992px) {
+        .dashboard-layout {
+            flex-direction: row;
+        }
+        .dashboard-sidebar {
+            width: 280px;
+        }
+    }
+    .dashboard-sidebar:empty {
+        display: none;
+    }
+    .dashboard-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0 auto;
+        max-width: 980px;
+        width: 100%;
+    }
+    .stat-card {
+        border: 1px solid rgba(13, 110, 253, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+    .badge-soft {
+        background: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+        font-weight: 600;
+    }
+    .badge-pending { background: rgba(255, 193, 7, 0.18); color: #b08900; }
+    .badge-progress { background: rgba(13, 202, 240, 0.18); color: #0aa2c0; }
+    .badge-resolved { background: rgba(25, 135, 84, 0.18); color: #198754; }
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        font-size: 1.1rem;
+    }
+    .dashboard-hero {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.06);
+    }
+    .dashboard-hero h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 0.4rem;
+    }
+    .dashboard-hero p {
+        color: #64748b;
+        margin-bottom: 1.2rem;
+    }
+    .quick-action {
+        border: 1px dashed rgba(13, 110, 253, 0.35);
+        background: #f8fbff;
+    }
+    .form-hint {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="container pt-0 pb-3">
+        <div class="dashboard-layout">
+            <aside class="dashboard-sidebar">
+                {% block sidebar %}{% endblock %}
+            </aside>
+            <main class="dashboard-main">
+                {% block dashboard_content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,298 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Submit Complaint - Citizen Grievance Portal{% endblock %}
+
+{% block content %}
+<div class="container-fluid bg-light py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg">
+
+                <div class="card-header text-white text-center py-4"
+                     style="background: linear-gradient(135deg, #f7971e, #ffd200);">
+                    <i class="fas fa-bullhorn fa-3x mb-3"></i>
+                    <h3 class="mb-0 fw-bold">Submit a New Complaint</h3>
+                    <p class="mb-0 opacity-75">Help us improve our community by reporting issues</p>
+                </div>
+
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_title" class="form-label fw-semibold">
+                                    <i class="fas fa-heading me-2 text-warning"></i>Complaint Title
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="id_title" name="title"
+                                       placeholder="Brief description of the issue"
+                                       value="{{ form.title.value|default:'' }}" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_category" class="form-label fw-semibold">
+                                    <i class="fas fa-tags me-2 text-warning"></i>Category
+                                </label>
+                                <select class="form-select form-select-lg" id="id_category" name="category" required {% if not categories and not form.category.field.queryset %}disabled{% endif %}>
+                                    <option value="">Select a category</option>
+                                    {% if categories %}
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}"
+                                                {% if form.category.value == category.id %}selected{% endif %}>
+                                                {{ category.name }}
+                                            </option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for category in form.category.field.queryset %}
+                                        <option value="{{ category.id }}"
+                                            {% if form.category.value == category.id %}selected{% endif %}>
+                                            {{ category.name }}
+                                        </option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Choose the category that best matches your issue.
+                                </small>
+                                {% if not categories and not form.category.field.queryset %}
+                                    <div class="text-danger small mt-2">
+                                        No categories available. Please contact admin to add categories.
+                                    </div>
+                                {% endif %}
+                                {% if form.category.errors %}
+                                    <div class="text-danger small mt-2">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ form.category.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label fw-semibold">
+                                <i class="fas fa-align-left me-2 text-warning"></i>Description
+                            </label>
+                            <textarea class="form-control" id="id_description" name="description" rows="4"
+                                      placeholder="Provide detailed information about the issue"
+                                      required>{{ form.description.value|default:'' }}</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_priority" class="form-label fw-semibold">
+                                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>Priority Level
+                                </label>
+                                <select class="form-select" id="id_priority" name="priority">
+                                    <option value="low" {% if form.priority.value == 'low' %}selected{% endif %}>Low</option>
+                                    <option value="medium" {% if form.priority.value == 'medium' or not form.priority.value %}selected{% endif %}>Medium</option>
+                                    <option value="high" {% if form.priority.value == 'high' %}selected{% endif %}>High</option>
+                                    <option value="urgent" {% if form.priority.value == 'urgent' %}selected{% endif %}>Urgent</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_attachment" class="form-label fw-semibold">
+                                    <i class="fas fa-paperclip me-2 text-warning"></i>Attachment (Optional)
+                                </label>
+                                <input type="file" class="form-control" id="id_attachment" name="attachment"
+                                       accept="image/*,.pdf,.doc,.docx">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload photos, documents, or other relevant files (max 10MB)
+                                </small>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-2">
+                                <i class="fas fa-map-marker-alt me-2 text-warning"></i>
+                                Select Complaint Location
+                            </h5>
+
+                            <input type="text" class="form-control mb-3" id="location" name="location"
+                                   placeholder="Enter location or click on map"
+                                   value="{{ form.location.value|default:'' }}">
+
+                            <div class="d-flex justify-content-end mb-2">
+                                <button type="button" class="btn btn-outline-warning btn-sm" id="use-my-location">
+                                    <i class="fas fa-location-crosshairs me-1"></i>Use my location
+                                </button>
+                            </div>
+
+                            <div id="map" class="map-container rounded"></div>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Drag the marker to set the exact location or click on the map
+                            </small>
+                            <input type="hidden" id="id_latitude" name="latitude">
+                            <input type="hidden" id="id_longitude" name="longitude">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-warning btn-lg text-dark">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Complaint
+                            </button>
+                        </div>
+                    </form>
+                    {% if form.errors %}
+                        <div class="alert alert-danger mt-4 mb-0">
+                            Please correct the errors above and resubmit the form.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer bg-light text-center py-3">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        Complaints are typically reviewed within 24-48 hours
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map {
+        height: 360px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+let map;
+let marker;
+let accuracyCircle;
+let watchId;
+let hasActiveWatch = false;
+
+function setLatLng(lat, lng) {
+    document.getElementById('id_latitude').value = lat;
+    document.getElementById('id_longitude').value = lng;
+    const locationInput = document.getElementById('location');
+    if (locationInput) {
+        locationInput.value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    }
+}
+
+function applyPosition(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    const accuracy = position.coords.accuracy;
+
+    const pos = [lat, lng];
+    map.setView(pos, 16);
+    marker.setLatLng(pos);
+    setLatLng(lat, lng);
+
+    if (!accuracyCircle) {
+        accuracyCircle = L.circle(pos, { radius: accuracy }).addTo(map);
+    } else {
+        accuracyCircle.setLatLng(pos);
+        accuracyCircle.setRadius(accuracy);
+    }
+}
+
+function startLiveLocation() {
+    if (!navigator.geolocation || hasActiveWatch) {
+        return;
+    }
+
+    hasActiveWatch = true;
+    watchId = navigator.geolocation.watchPosition(
+        function(position) {
+            applyPosition(position);
+        },
+        function() {
+            hasActiveWatch = false;
+        },
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
+    );
+}
+
+function initMap() {
+    const defaultLocation = [28.6139, 77.2090];
+    map = L.map('map').setView(defaultLocation, 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '(c) OpenStreetMap contributors'
+    }).addTo(map);
+
+    marker = L.marker(defaultLocation, { draggable: true }).addTo(map);
+    setLatLng(defaultLocation[0], defaultLocation[1]);
+
+    marker.on('dragend', function() {
+        const position = marker.getLatLng();
+        setLatLng(position.lat, position.lng);
+    });
+
+    map.on('click', function(event) {
+        const clicked = event.latlng;
+        marker.setLatLng(clicked);
+        map.panTo(clicked);
+        setLatLng(clicked.lat, clicked.lng);
+    });
+
+    startLiveLocation();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+
+    const useMyLocationBtn = document.getElementById('use-my-location');
+    useMyLocationBtn.addEventListener('click', function() {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by this browser.');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                applyPosition(position);
+                startLiveLocation();
+            },
+            function() {
+                alert('Unable to access your location. Please enable location services and try again.');
+            },
+            { enableHighAccuracy: true, timeout: 8000, maximumAge: 10000 }
+        );
+    });
+
+    const form = document.querySelector('form');
+    const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+
+    requiredFields.forEach(field => {
+        field.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+
+        field.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid') && this.value.trim() !== '') {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    });
+    const fileInput = document.getElementById('id_attachment');
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const maxSize = 10 * 1024 * 1024; 
+            if (file.size > maxSize) {
+                alert('File size must be less than 10MB');
+                this.value = '';
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

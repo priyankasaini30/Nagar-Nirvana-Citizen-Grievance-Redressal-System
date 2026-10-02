@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register - Citizen Grievance Portal{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center py-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <i class="fas fa-user-plus fa-3x mb-3"></i>
+                    <h3 class="mb-0 fw-bold">Join Our Community</h3>
+                    <p class="mb-0 opacity-75">Create your account to start making a difference</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3">
+                                <i class="fas fa-info-circle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-success"></i>First Name
+                                </label>
+                                <input type="text" class="form-control" id="id_first_name" name="first_name"
+                                       placeholder="Enter your first name" value="{{ form.first_name.value|default:'' }}">
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-success"></i>Last Name
+                                </label>
+                                <input type="text" class="form-control" id="id_last_name" name="last_name"
+                                       placeholder="Enter your last name" value="{{ form.last_name.value|default:'' }}">
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-semibold">
+                                <i class="fas fa-at me-2 text-success"></i>Username
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input type="text" class="form-control" id="id_username" name="username"
+                                       placeholder="Choose a unique username" value="{{ form.username.value|default:'' }}" required>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ form.username.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope me-2 text-success"></i>Email Address
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                <input type="email" class="form-control" id="id_email" name="email"
+                                       placeholder="Enter your email address" value="{{ form.email.value|default:'' }}" required>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ form.email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_password1" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-success"></i>Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control{% if form.password1.errors %} is-invalid{% endif %}" id="id_password1" name="password1"
+                                           placeholder="Create a strong password" required>
+                                </div>
+                                {% if form.password1.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ form.password1.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="id_password2" class="form-label fw-semibold">
+                                    <i class="fas fa-lock me-2 text-success"></i>Confirm Password
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    <input type="password" class="form-control{% if form.password2.errors %} is-invalid{% endif %}" id="id_password2" name="password2"
+                                           placeholder="Confirm your password" required>
+                                </div>
+                                {% if form.password2.errors %}
+                                    <div class="text-danger small mt-1">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>{{ form.password2.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Create Account
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <p class="mb-0">Already have an account?
+                        <a href="{% url 'accounts:login' %}" class="text-decoration-none fw-semibold text-success">
+                            <i class="fas fa-sign-in-alt me-1"></i>Sign in here
+                        </a>
+                    </p>
+                    <p class="mb-0 mt-2">
+                        Need an authority account?
+                        <a href="{% url 'accounts:register_authority' %}" class="text-decoration-none fw-semibold text-primary">
+                            <i class="fas fa-user-shield me-1"></i>Request authority access
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    By registering, you agree to our terms of service and privacy policy
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const firstNameField = document.getElementById('id_first_name');
+    if (firstNameField) {
+        firstNameField.focus();
+    }
+
+    const password1Field = document.getElementById('id_password1');
+    const password2Field = document.getElementById('id_password2');
+
+    function validatePasswordStrength() {
+        const value = password1Field.value || '';
+        if (!value) {
+            password1Field.classList.remove('is-valid', 'is-invalid');
+            return;
+        }
+        if (value.length < 8) {
+            password1Field.classList.remove('is-valid');
+            password1Field.classList.add('is-invalid');
+        } else {
+            password1Field.classList.remove('is-invalid');
+            password1Field.classList.add('is-valid');
+        }
+    }
+
+    function checkPasswordMatch() {
+        if (!password2Field.value) {
+            password2Field.classList.remove('is-valid', 'is-invalid');
+            return;
+        }
+        if (password1Field.value === password2Field.value && password1Field.value.length >= 8) {
+            password2Field.classList.remove('is-invalid');
+            password2Field.classList.add('is-valid');
+        } else {
+            password2Field.classList.remove('is-valid');
+            password2Field.classList.add('is-invalid');
+        }
+    }
+
+    password1Field.addEventListener('input', function() {
+        validatePasswordStrength();
+        checkPasswordMatch();
+    });
+    password2Field.addEventListener('input', checkPasswordMatch);
+    const inputs = document.querySelectorAll('input[required]');
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid') && this.value.trim() !== '') {
+                this.classList.remove('is-invalid');
+                this.classList.add('is-valid');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

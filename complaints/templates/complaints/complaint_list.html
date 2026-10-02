@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title|default:"My Complaints" }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="h4 fw-semibold mb-0 mt-3 mx-4">{{ page_heading|default:"My Complaints" }}</h2>
+</div>
+
+<div class="row mb-4 mx-3">
+    <div class="col-md-6">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search complaints...">
+    </div>
+    <div class="col-md-6">
+        <select id="statusFilter" class="form-select">
+            <option value="">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Resolved">Resolved</option>
+            <option value="Closed">Closed</option>
+        </select>
+    </div>
+</div>
+
+{% if complaints %}
+    <div class="row mx-3" id="complaintsContainer">
+        {% for complaint in complaints %}
+            <div class="col-md-6 mb-4 complaint-item" data-status="{{ complaint.status }}" data-title="{{ complaint.title|lower }}" data-description="{{ complaint.description|lower }}">
+                <div class="card complaint-card {{ complaint.status }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ complaint.title }}</h5>
+                        <p class="card-text">{{ complaint.description|truncatechars:100 }}</p>
+                        <p class="card-text">
+                            <small class="text-muted">
+                                Category: {{ complaint.category.name }} | 
+                                Status: <span class="status-{{ complaint.status }}">{{ complaint.get_status_display }}</span> | 
+                                Submitted: {{ complaint.created_at|date:"M d, Y" }}
+                            </small>
+                        </p>
+                        <a href="{% url 'complaints:complaint_detail' pk=complaint.pk %}" class="btn btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center">
+        <p>You haven't submitted any complaints yet.</p>
+        {% if user.is_citizen %}
+        <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-primary">Submit Your First Complaint</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const statusFilter = document.getElementById('statusFilter');
+    const complaintItems = document.querySelectorAll('.complaint-item');
+    complaintItems.forEach(item => {
+        const title = item.querySelector('.card-title');
+        const description = item.querySelector('.card-text');
+        item.dataset.originalTitle = title.textContent;
+        item.dataset.originalDescription = description.textContent;
+    });
+
+    function highlightText(text, searchTerm) {
+        if (!searchTerm) return text;
+        const regex = new RegExp(`(${searchTerm})`, 'gi');
+        return text.replace(regex, '<mark>$1</mark>');
+    }
+
+    function filterComplaints() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const statusValue = statusFilter.value;
+
+        complaintItems.forEach(item => {
+            const title = item.dataset.originalTitle.toLowerCase();
+            const description = item.dataset.originalDescription.toLowerCase();
+            const status = item.dataset.status;
+
+            const matchesSearch = title.includes(searchTerm) || description.includes(searchTerm);
+            const matchesStatus = statusValue === '' || status === statusValue;
+
+            if (matchesSearch && matchesStatus) {
+                item.style.display = 'block';
+                item.style.opacity = '0';
+                setTimeout(() => {
+                    item.style.transition = 'opacity 0.3s';
+                    item.style.opacity = '1';
+                }, 10);
+
+                
+                const titleElement = item.querySelector('.card-title');
+                const descElement = item.querySelector('.card-text');
+                titleElement.innerHTML = highlightText(item.dataset.originalTitle, searchTerm);
+                descElement.innerHTML = highlightText(item.dataset.originalDescription, searchTerm);
+            } else {
+                item.style.display = 'none';
+                const titleElement = item.querySelector('.card-title');
+                const descElement = item.querySelector('.card-text');
+                titleElement.textContent = item.dataset.originalTitle;
+                descElement.textContent = item.dataset.originalDescription;
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterComplaints);
+    statusFilter.addEventListener('change', filterComplaints);
+});
+</script>
+{% endblock %}

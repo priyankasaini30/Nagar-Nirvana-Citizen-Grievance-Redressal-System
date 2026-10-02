@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Complaint Details{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>{{ complaint.title }}</h3>
+                <span class="badge bg-primary">{{ complaint.get_status_display }}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Tracking ID:</strong> {{ complaint.tracking_id }}</p>
+                <p><strong>Category:</strong> {{ complaint.category.name }}</p>
+                <p><strong>Description:</strong> {{ complaint.description }}</p>
+                <p><strong>Location:</strong> {{ complaint.location }}</p>
+                <p><strong>Submitted:</strong> {{ complaint.created_at|date:"M d, Y H:i" }}</p>
+                {% if complaint.image %}
+                    <p><strong>Image:</strong> <img src="{{ complaint.image.url }}" alt="Complaint image" class="img-fluid"></p>
+                {% endif %}
+                {% if complaint.video %}
+                    <p><strong>Video:</strong> <video controls class="img-fluid"><source src="{{ complaint.video.url }}"></video></p>
+                {% endif %}
+                
+                {% if complaint.updates %}
+                    <h4 class="mt-4">Updates</h4>
+                    {% for update in updates %}
+                        <div class="card mt-2">
+                            <div class="card-body">
+                                <p>{{ update.comment }}</p>
+                                <small class="text-muted">By {{ update.updated_by.username }} on {{ update.created_at|date:"M d, Y H:i" }}</small>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if feedback_form %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4>Post-Resolution Feedback</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'complaints:submit_feedback' complaint.pk %}">
+                        {% csrf_token %}
+                        {{ feedback_form|crispy }}
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    </form>
+                    <small class="text-muted d-block mt-2">
+                        Your feedback is shared with the authority for review and does not directly change complaint status.
+                    </small>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        {% if user.is_authority %}
+            <div class="card">
+                <div class="card-header">
+                    <h5>Update Status</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'complaints:update_complaint' complaint.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                {% for s in all_statuses %}
+                                    {% if s == complaint.status %}
+                                        <option value="{{ s }}" selected>Current: {{ s }}</option>
+                                    {% elif s in allowed_statuses %}
+                                        <option value="{{ s }}">{{ s }}</option>
+                                    {% elif feedback_pending and s == 'Closed' %}
+                                        <option value="{{ s }}" disabled>{{ s }} (awaiting citizen confirmation)</option>
+                                    {% else %}
+                                        <option value="{{ s }}" disabled>{{ s }} (not allowed)</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="assigned_to" class="form-label">Reassign To</label>
+                            <select class="form-select" id="assigned_to" name="assigned_to">
+                                <option value="">Select authority</option>
+                                {% for au in authority_users %}
+                                    <option value="{{ au.id }}" {% if complaint.assigned_to_id == au.id %}selected{% endif %}>
+                                        {{ au.get_full_name|default:au.username }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Required if reopening after pending feedback.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment</label>
+                            <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if complaint.feedback %}
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>Citizen Feedback</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Citizen Response:</strong> {{ complaint.feedback.get_resolution_status_display }}</p>
+                        {% if complaint.feedback.rating %}
+                            <p><strong>Rating:</strong> {{ complaint.feedback.rating }}/5</p>
+                        {% endif %}
+                        {% if complaint.feedback.comment %}
+                            <p><strong>Comment:</strong> {{ complaint.feedback.comment }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+        
+        {% if complaint.feedback and not user.is_authority %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Feedback</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Citizen Response:</strong> {{ complaint.feedback.get_resolution_status_display }}</p>
+                    {% if complaint.feedback.rating %}
+                        <p><strong>Rating:</strong> {{ complaint.feedback.rating }}/5</p>
+                    {% endif %}
+                    {% if complaint.feedback.comment %}
+                        <p><strong>Comment:</strong> {{ complaint.feedback.comment }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endblock %}

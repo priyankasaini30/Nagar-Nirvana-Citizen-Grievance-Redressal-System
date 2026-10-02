@@ -1,0 +1,160 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block dashboard_title %}Citizen Dashboard | Nagar Nirvana{% endblock %}
+
+{% block sidebar %}
+<div class="card shadow-sm border-0 mt-5">
+    <div class="card-body">
+        <h6 class="text-uppercase text-muted mb-3">Quick Overview</h6>
+          <div class="bg-light rounded-3 p-3 mb-3">
+            <div class="fw-semibold mb-1">Priority guide</div>
+            <div class="small text-muted">Urgent: safety / hazards</div>
+            <div class="small text-muted">High: services disrupted</div>
+            <div class="small text-muted">Medium: routine issues</div>
+            <div class="small text-muted">Low: minor concerns</div>
+        </div>
+
+        <div class="bg-light rounded-3 p-3 mb-3">
+            <div class="fw-semibold mb-1">Submit checklist</div>
+            <div class="small text-muted">Add clear title and details</div>
+            <div class="small text-muted">Attach photo or video</div>
+            <div class="small text-muted">Pin exact location</div>
+        </div>
+
+        <div class="d-grid gap-2 mb-3">
+            <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-sm btn-primary">
+                <i class="fa-solid fa-plus me-1"></i> New Complaint
+            </a>
+            <a href="{% url 'complaints:track_status' %}" class="btn btn-sm btn-outline-primary">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Track Status
+            </a>
+            <a href="{% url 'dashboard:chatbot' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fa-solid fa-comments me-1"></i> Chatbot Help
+            </a>
+        </div>
+
+        <div class="small text-muted">
+            Tip: Use live location for accurate complaint mapping.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-hero mb-4 p-4 mt-5 rounded-4 shadow-sm text-center bg-light">
+    <h2>Welcome back, {{ request.user.first_name|default:request.user.username }}</h2>
+    <p>Track your complaints, submit new issues, and stay updated.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-2">
+        <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-primary">
+            <i class="fa-solid fa-plus me-1"></i> New Complaint
+        </a>
+        <a href="{% url 'complaints:complaint_list' %}" class="btn btn-outline-primary">
+            <i class="fa-solid fa-list-check me-1"></i> My Complaints
+        </a>
+        <a href="{% url 'complaints:complaint_map' %}" class="btn btn-outline-secondary">
+            <i class="fa-solid fa-map-location-dot me-1"></i> Map View
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-4 px-1 px-md-2">
+    {% for stat in stats %}
+    <div class="col-md-3">
+        <div class="card stat-card shadow-sm border-start border-{{ stat.color }} border-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <p class="text-muted mb-1">{{ stat.label }}</p>
+                        <h3 class="fw-bold">{{ stat.value }}</h3>
+                    </div>
+                    <i class="fa-solid {{ stat.icon }} fa-2x text-{{ stat.color }} opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row g-4 justify-content-center mb-4 px-1 px-md-2">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100 text-center">
+            <div class="card-body">
+                <i class="fa-solid fa-pen-to-square fa-2x text-primary mb-3"></i>
+                <h5 class="fw-semibold">Submit a Complaint</h5>
+                <p class="text-muted">Report issues with category, location, and priority.</p>
+                <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-primary btn-sm">
+                    Start Now
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100 text-center">
+            <div class="card-body">
+                <i class="fa-solid fa-magnifying-glass fa-2x text-primary mb-3"></i>
+                <h5 class="fw-semibold">Track Status</h5>
+                <p class="text-muted">Check progress updates using your complaint ID.</p>
+                <a href="{% url 'complaints:track_status' %}" class="btn btn-primary btn-sm">
+                    Track
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100 text-center">
+            <div class="card-body">
+                <i class="fa-solid fa-list-check fa-2x text-primary mb-3"></i>
+                <h5 class="fw-semibold">Submitted Complaints</h5>
+                <p class="text-muted">View all complaints you have submitted.</p>
+                <a href="{% url 'complaints:submitted_complaints' %}" class="btn btn-primary btn-sm">
+                    View
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100 text-center">
+            <div class="card-body">
+                <i class="fa-solid fa-comment-dots fa-2x text-primary mb-3"></i>
+                <h5 class="fw-semibold">Feedback Center</h5>
+                <p class="text-muted">Rate resolved complaints and share feedback.</p>
+                <a href="{% url 'complaints:feedback_center' %}" class="btn btn-primary btn-sm">
+                    Give Feedback
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100 text-center">
+            <div class="card-body">
+                <i class="fa-solid fa-map-location-dot fa-2x text-primary mb-3"></i>
+                <h5 class="fw-semibold">Complaint Map</h5>
+                <p class="text-muted">Explore complaints on the city map view.</p>
+                <a href="{% url 'complaints:complaint_map' %}" class="btn btn-primary btn-sm">
+                    Open Map
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 rounded-4 h-100 text-center">
+            <div class="card-body">
+                <i class="fa-solid fa-house fa-2x text-primary mb-3"></i>
+                <h5 class="fw-semibold">Back to Home</h5>
+                <p class="text-muted">Return to the main portal home page.</p>
+                <a href="{% url 'accounts:home' %}" class="btn btn-primary btn-sm">
+                    Go Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        return;
+    });
+</script>
+{% endblock %}
